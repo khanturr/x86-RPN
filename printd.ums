@@ -1,0 +1,72 @@
+.temps r6, r7
+.zero r0
+
+.section text
+        // an integer is expected on the call stack and printd outputs the
+        // integer to the terminal
+        printd:
+            push r1 on stack r2
+            push r4 on stack r2
+            push r3 on stack r2
+
+            r5 := r2 + 3
+            r3 := m[r0][r5]
+            r5 := -2147483648
+
+            if (r3 == r0) goto print0 using r4
+            if (r3 == r5) goto printMinimum using r4
+            if (r3 >s r0) goto printPositive using r4
+            if (r3 <s r0) goto printNegative using r4
+        
+        // the integer 0 is expected on the call stack and print0 outputs 0
+        // to the terminal
+        print0:
+            output "0"
+            goto finish
+
+        // the integer -2147483648 is expected on the top of the call stack and
+        // printMinimum outputs that number to the terminal
+        printMinimum:
+            output "-2147483648"
+            goto finish
+
+        // expects an integer greater than 0 on the stack and outputs that
+        // integer to the terminal
+        printPositive:
+            r5 := r0
+            goto fillStack
+        
+        // expects an integer less than 0 on the stack and outputs that
+        // integer to the terminal
+        printNegative:
+            output '-'
+            r3 := -r3
+            goto printPositive
+
+        // recursive function that expects an positive integer and fills
+        // the call stack with each decimal value 
+        fillStack:
+            push r3 on stack r2
+            if (r3 <s 10) goto printStack using r1
+            r5 := r5 + 1
+            r3 := r3 / 10
+            goto fillStack
+
+        // recursive function expects a stack of integers and prints the
+        // original number digit by digit
+        printStack:
+            pop r3 off stack r2
+            r3 := r3 mod 10
+            output r3 + '0'
+            if (r5 == 0) goto finish
+            r5 := r5 - 1
+            goto printStack
+
+        // recovers intial state before printd is called
+        finish:
+            pop r3 off stack r2
+            pop r4 off stack r2
+            pop r5 off stack r2
+            output '\n'
+            r1 := r0
+            goto r5

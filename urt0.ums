@@ -1,0 +1,20 @@
+.temps r6, r7
+.zero r0
+
+.section init
+        // initializes stack pointers for program and RPN calc stack
+        start:
+                r2 := endstack
+                r4 := valuestack
+                
+.section data
+        // initializes the space needed for program and RPN calc stack
+        .space 100000
+        endstack: 
+        .space 100000
+        valuestack:
+
+.section rodata
+        // initializes the jumptable
+        jumptable:
+        .space 256

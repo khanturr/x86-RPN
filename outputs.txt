@@ -1,0 +1,154 @@
+Stack underflow---expected at least 1 element
+>>> -10
+>>> -5
+>>> -10
+>>> -5
+>>> -10
+>>> 2
+>>> 10
+>>> -5
+>>> 10
+>>> -2
+>>> 2
+>>> -2
+>>> 0
+>>> 2
+>>> -2
+>>> 24
+>>> 0
+>>> 2
+>>> -2
+>>> 2
+>>> 4
+>>> -24
+>>> 2
+>>> -2
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+Division by zero
+Division by zero
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+Unknown character '.
+Unknown character '.
+Unknown character '.
+Unknown character '.
+>>> 12
+>>> 10
+>>> 4
+>>> 3
+>>> 2
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+>>> 2
+>>> 14
+>>> 3
+>>> 2
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+>>> -14
+>>> 14
+>>> 3
+>>> 2
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+>>> 34
+>>> 13
+>>> 14
+>>> 3
+>>> 2
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+>>> 2
+>>> 0
+>>> 0
+>>> 0
+>>> 27
+>>> 0
+>>> 1
+>>> 2
+>>> 2
+>>> -24
+>>> 2
+>>> -2
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Unknown character '.
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+>>> -5
+Stack underflow---expected at least 2 elements
+>>> 100
+>>> -491
+>>> 29
+>>> -1060
+>>> 8
+>>> -1518
+>>> 64
+>>> -1916
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+>>> 9
+>>> 4
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+>>> 7
+>>> 3
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements
+Stack underflow---expected at least 2 elements

@@ -1,0 +1,7 @@
+.temps r6, r7
+.zero r0
+
+.section text
+        // directs the program to command loop in calc40
+        main:
+            goto waiting

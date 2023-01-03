@@ -1,0 +1,342 @@
+.temps r6, r7
+.zero r0
+
+
+.section init
+        r3 := jumptable
+
+        // fills the jumptable with error for unknown characters using a loop
+        // expects r3 to be pointing to the jumptable
+        fillTable:
+                m[r0][r3] := errorUnknownChar
+                r3 := r3 + 1
+                if (r3 <s jumptable + 256) goto fillTable using r5
+        
+        r3 := jumptable + '0'
+        // assigns digits 0-9 to the label pushNum using a loop
+        // expects r3 to be pointing at jumptable with an offset that moves
+        // it to ascii character '0'
+        defineDigits:
+                m[r0][r3] := pushNum
+                r3 := r3 + 1
+                if (r3 <=s jumptable + '9') goto defineDigits using r5
+
+        r3 := jumptable
+        m[r0][r3 + ' '] := space
+        m[r0][r3 + '\n'] := printValueStack
+        
+        m[r0][r3 + '+'] := add
+        m[r0][r3 + '-'] := subtract
+        m[r0][r3 + '*'] := multiply
+        m[r0][r3 + '/'] := divide
+        
+        m[r0][r3 + '|'] := or
+        m[r0][r3 + '&'] := and
+        m[r0][r3 + 'c'] := negate
+        m[r0][r3 + '~'] := not
+        
+        m[r0][r3 + 's'] := swap
+        m[r0][r3 + 'd'] := duplicate
+        m[r0][r3 + 'p'] := popStack
+        m[r0][r3 + 'z'] := emptyStack
+
+        goto main
+
+.section text
+
+//----------------------MISC----------------------//
+
+        // expects a binary, unary operator, or command to be in r3
+        // directs the program to the function corresponding to that operator
+        operator:
+                r5 := r3 + jumptable
+                goto m[r0][r5]
+
+        // expects a ' ' character at the top of the value stack and removes it
+        space:
+                pop r4 off stack r2
+                goto waiting
+                
+        // prints out the all of values in the RPN calc stack
+        printValueStack:
+                r4 := m[r0][r2]
+                printValueStackHelper:
+                        if (r4 == valuestack) goto baseCase using r5
+                        push m[r0][r4] on stack r2
+                        output ">>> "
+                        goto printd linking r1
+                        pop stack r2
+                        r4 := r4 + 1
+                        goto printValueStackHelper 
+                baseCase:
+                        pop r4 off stack r2
+                        goto waiting
+                        
+        // ends the program if anything goes wrong or EOF is reached
+        endProcedure:
+                halt
+
+//----------------------BINARY OPERATORS----------------------//
+
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // computes the sum of the 2 and pushes it back onto the RPN calc stack
+        add:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                r3 := r3 + r5
+                push r3 on stack r4
+                goto waiting
+        
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // computes the difference of the 2 and pushes it back onto the RPN
+        // calc stack
+        subtract:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                r3 := r3 - r5
+                push r3 on stack r4
+                goto waiting
+
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // computes the product of the 2 and pushes it back onto the RPN calc
+        // stack
+        multiply:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                r3 := r3 * r5
+                push r3 on stack r4
+                goto waiting
+        
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // it also checks for divide by 0 runtime error
+        // computes the integer quotient of the 2 and pushes it back onto the
+        // RPN calc stack
+        divide:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                if (r5 == 0) goto errorDivide0 using r1
+                pop r3 off stack r4
+
+                if (r5 <s r0) goto checkNumerator using r1
+                if (r3 <s r0) goto numeratorNegative using r1
+                goto bothPositive
+
+                // in the case the denominator is negative, it checks if the
+                // numerator is also negative
+                checkNumerator:
+                        if (r3 <s r0) goto bothNegative using r1
+                        goto denominatorNegative
+
+                // expects r3 and r5 to be positive integers
+                bothPositive:
+                        r3 := r3 / r5
+                        push r3 on stack r4
+                        goto waiting
+                
+                // expects r3 to be negative and r5 to be positive integers
+                numeratorNegative:
+                        r3 := -r3
+                        r3 := r3 / r5
+                        r3 := -r3
+                        push r3 on stack r4
+                        goto waiting
+
+                // expects r3 to be positive and r5 to be negative integers
+                denominatorNegative:
+                        r5 := -r5
+                        r3 := r3 / r5
+                        r3 := -r3
+                        push r3 on stack r4
+                        goto waiting
+                        
+                // expects r3 and r5 to be negative integers
+                bothNegative:
+                        r3 := -r3 
+                        r5 := -r5
+                        r3 := r3 / r5
+                        push r3 on stack r4
+                        goto waiting
+        
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // computes the bitwise or of the 2 and pushes it back onto the RPN 
+        // calc stack 
+        or:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                r3 := r3 | r5
+                push r3 on stack r4
+                goto waiting
+        
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // computes the bitwise and of the 2 and pushes it back onto the RPN 
+        // calc stack 
+        and:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                r3 := r3 & r5
+                push r3 on stack r4
+                goto waiting
+
+                
+
+//----------------------UNARY OPERATORS----------------------//
+
+        // expects 1 value in the RPN calc stack with checked runtime error
+        // negates the top value and pushes it back onto the RPN calc stack
+        negate:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect1Elem using r1
+                pop r5 off stack r4
+
+                r5 := -r5
+                push r5 on stack r4
+                goto waiting
+
+        // expects 1 value in the RPN calc stack with checked runtime error
+        // computes the bitwise not of the top value and pushes it back onto
+        // the RPN call stack        
+        not:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect1Elem using r1
+                pop r5 off stack r4
+
+                r5 := ~r5
+                push r5 on stack r4
+                goto waiting
+
+
+//----------------------COMMANDS----------------------//
+        
+        // expects 2 values in the RPN calc stack with checked runtime errors
+        // pops the top two elements off the stack and pushes them in the
+        // reverse order
+        swap:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect2Elems using r1
+                pop r5 off stack r4
+                if (r4 == valuestack) goto errorSize1Stack using r1
+                pop r3 off stack r4
+
+                push r5 on stack r4
+                push r3 on stack r4
+                goto waiting
+
+        // expects 1 value in the RPN calc stack with checked runtime error
+        // Pops the top element off the stack and pushes it twice
+        duplicate:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect1Elem using r5
+                pop r5 off stack r4
+
+                push r5 on stack r4
+                push r5 on stack r4
+                goto waiting
+        
+        // expects 1 value in the RPN calc stack with checked runtime error
+        // Pops the top element off the stack and erases it
+        popStack:
+                pop r4 off stack r2
+                if (r4 == valuestack) goto errorEmptyExpect1Elem using r5
+                pop stack r4
+                goto waiting
+
+        // continuously pops from the RPN calc stack until the stack is empty
+        // Sets the stack pointer to the start of the stack
+        emptyStack:
+                pop r4 off stack r2
+                emptyHelper:
+                        if (r4 == valuestack) goto waiting using r5
+                        pop stack r4
+                        goto emptyHelper
+
+//----------------------STATES----------------------//
+
+        // If machine is in waiting state
+        waiting:
+                r3 := input()
+
+        // If machine is in waiting state with a character
+        waiting_with_character:
+                push r4 on stack r2
+                if (r3 <s r0) goto endProcedure using r4
+                r5 := jumptable + r3
+                r5 := m[r0][r5]
+                goto r5
+
+        // pushes an integer between 0 and 9 and shift to entering state
+        pushNum:
+                pop r4 off stack r2
+                r3 := r3 - '0'
+                push r3 on stack r4
+        
+        // If machine is in entering state
+        entering:
+                r3 := input()
+                // Check if r3 signals EOF, if so, go to endProcedure
+                if (r3 <s r0) goto endProcedure using r5
+                push r4 on stack r2
+                if (r3 <s '0') goto operator using r4
+                if (r3 >s '9') goto operator using r4
+                
+                pop r4 off stack r2
+                pop r5 off stack r4
+                r3 := r3 - '0'
+                r5 := 10 * r5
+                r5 := r3 + r5
+                push r5 on stack r4
+                goto entering
+                
+
+//----------------------ERRORS----------------------//
+
+        // Error to return when unknown character is given
+        errorUnknownChar:
+                pop r4 off stack r2
+                output "Unknown character '"
+                output r3
+                output "'\n"
+                goto waiting
+
+        // Error to return when division by zero
+        errorDivide0:
+                output "Division by zero\n"
+                push r5 on stack r4
+                goto waiting
+
+        // Error to return when prints expected 1 element
+        errorEmptyExpect1Elem:
+                output "Stack underflow---expected at least 1 element\n"
+                goto waiting
+                
+        // Error to return when prints expected 2 elements, none errors
+        errorEmptyExpect2Elems:
+                output "Stack underflow---expected at least 2 elements\n"
+                goto waiting
+
+        // Error to return when prints expected 2 element, one error
+        errorSize1Stack:
+                output "Stack underflow---expected at least 2 elements\n"
+                push r5 on stack r4
+                goto waiting
